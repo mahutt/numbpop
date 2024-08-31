@@ -1,6 +1,7 @@
-import './App.css'
+import { Link } from 'react-router-dom'
+import './Join.css'
 
-function App() {
+export default function Join() {
   return (
     <>
       <div
@@ -9,17 +10,17 @@ function App() {
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
-          width: 400,
-          height: 400,
-          position: 'relative',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingTop: '4em',
+          paddingBottom: '4em',
         }}
       >
         <div
           style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
             display: 'flex',
             flexDirection: 'column',
             gap: 16,
@@ -35,8 +36,11 @@ function App() {
           </button>
         </div>
       </div>
+      <Link to="/new">
+        <button id="create-game" style={{ color: 'red' }}>
+          Create Game
+        </button>
+      </Link>
     </>
   )
 }
-
-export default App

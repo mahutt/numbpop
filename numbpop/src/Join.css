@@ -12,3 +12,15 @@ input[type='text'] {
   font-size: 1em;
   transition: border-color 0.25s;
 }
+
+#create-game {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+}
+
+@media (max-width: 768px) {
+  #create-game {
+    display: none;
+  }
+}
