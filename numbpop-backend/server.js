@@ -28,10 +28,10 @@ app.get('/games', (req, res) => {
       .prepare('SELECT * FROM questions WHERE gameId = ?')
       .all(game.id)
     questions.forEach((question) => {
-      const answers = db
-        .prepare('SELECT * FROM answers WHERE questionId = ?')
+      const choices = db
+        .prepare('SELECT * FROM choices WHERE questionId = ?')
         .all(question.id)
-      question.answers = answers
+      question.choices = choices
     })
     game.questions = questions
   })
@@ -43,18 +43,14 @@ app.post('/games', (req, res) => {
   const { title, questions } = req.body
   let stmt = db.prepare('INSERT INTO games (title, userId) VALUES (?, ?)')
   const { lastInsertRowid } = stmt.run(title, userId)
-  questions.forEach(({ text, answerIndex, answers }) => {
-    stmt = db.prepare(
-      'INSERT INTO questions (text, answerIndex, gameId) VALUES (?, ?, ?)'
-    )
-    const { lastInsertRowid: questionId } = stmt.run(
-      text,
-      answerIndex,
-      lastInsertRowid
-    )
-    answers.forEach((text) => {
-      stmt = db.prepare('INSERT INTO answers (text, questionId) VALUES (?, ?)')
-      stmt.run(text, questionId)
+  questions.forEach(({ text, choices }) => {
+    stmt = db.prepare('INSERT INTO questions (text, gameId) VALUES (?, ?)')
+    const { lastInsertRowid: questionId } = stmt.run(text, lastInsertRowid)
+    choices.forEach(({ text, correct }) => {
+      stmt = db.prepare(
+        'INSERT INTO choices (text, correct, questionId) VALUES (?, ?, ?)'
+      )
+      stmt.run(text, correct ? 1 : 0, questionId)
     })
   })
   res.sendStatus(201)

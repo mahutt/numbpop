@@ -35,16 +35,16 @@ db.exec(`
     CREATE TABLE IF NOT EXISTS questions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         text TEXT NOT NULL,
-        answerIndex INTEGER NOT NULL,
         gameId INTEGER NOT NULL,
         FOREIGN KEY (gameId) REFERENCES games(id) ON DELETE CASCADE
     )
 `)
 
 db.exec(`
-    CREATE TABLE IF NOT EXISTS answers (
+    CREATE TABLE IF NOT EXISTS choices (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         text TEXT NOT NULL,
+        correct INTEGER NOT NULL CHECK(correct IN (0, 1)),
         questionId INTEGER NOT NULL,
         FOREIGN KEY (questionId) REFERENCES questions(id) ON DELETE CASCADE
     )

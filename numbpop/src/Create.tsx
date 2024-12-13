@@ -1,9 +1,13 @@
 import useLocalStorage from 'use-local-storage'
 
+type Choice = {
+  text: string
+  correct: boolean
+}
+
 type Question = {
   text: string
-  answers: string[]
-  answerIndex: number
+  choices: Choice[]
 }
 
 type Game = {
@@ -109,12 +113,12 @@ export default function Create() {
                 -
               </button>
             </div>
-            {question.answers.map((answer, i) => (
+            {question.choices.map((choice, i) => (
               <div key={i} style={{ display: 'flex', gap: 6 }}>
                 <input
                   type="text"
                   placeholder="Answer"
-                  value={answer}
+                  value={choice.text}
                   onChange={(event) =>
                     setGame({
                       ...game,
@@ -122,8 +126,8 @@ export default function Create() {
                         j === index
                           ? {
                               ...q,
-                              answers: q.answers.map((a, k) =>
-                                k === i ? event.target.value : a
+                              choices: q.choices.map((c, k) =>
+                                k === i ? { ...c, text: event.target.value } : c
                               ),
                             }
                           : q
@@ -140,7 +144,7 @@ export default function Create() {
                         j === index
                           ? {
                               ...q,
-                              answers: q.answers.filter((_, k) => k !== i),
+                              choices: q.choices.filter((_, k) => k !== i),
                             }
                           : q
                       ),
@@ -150,8 +154,8 @@ export default function Create() {
                   -
                 </button>
                 <input
-                  type="radio"
-                  checked={question.answerIndex === i}
+                  type="checkbox"
+                  checked={choice.correct}
                   onChange={() =>
                     setGame({
                       ...game,
@@ -159,7 +163,9 @@ export default function Create() {
                         j === index
                           ? {
                               ...q,
-                              answerIndex: i,
+                              choices: q.choices.map((c, k) =>
+                                k === i ? { ...c, correct: !c.correct } : c
+                              ),
                             }
                           : q
                       ),
@@ -176,7 +182,7 @@ export default function Create() {
                     j === index
                       ? {
                           ...q,
-                          answers: [...q.answers, ''],
+                          choices: [...q.choices, { text: '', correct: false }],
                         }
                       : q
                   ),
@@ -196,8 +202,12 @@ export default function Create() {
                 ...game.questions,
                 {
                   text: '',
-                  answers: [''],
-                  answerIndex: 0,
+                  choices: [
+                    {
+                      text: '',
+                      correct: false,
+                    },
+                  ],
                 },
               ],
             })
