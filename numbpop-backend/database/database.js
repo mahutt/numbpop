@@ -12,14 +12,14 @@ db.pragma('journal_mode = WAL')
 db.exec(`
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
+        name TEXT NOT NULL UNIQUE CHECK(length(name) >= 3),
         email TEXT NOT NULL UNIQUE,
-        password TEXT NOT NULL
+        hash TEXT NOT NULL
     )
 `)
 
 db.exec(`
-    INSERT OR IGNORE INTO users (name, email, password) VALUES ('mahutt', 'me@mahutt.me', 'password')
+    INSERT OR IGNORE INTO users (name, email, hash) VALUES ('mahutt', 'me@mahutt.me', '$2a$10$I0um7sZKA/1XX9EDRxixu.6n.2XDDcyei6USwpFg6dJoP3Oq5FsjO')
 `)
 
 db.exec(`

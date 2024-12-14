@@ -2,7 +2,13 @@ import express from 'express'
 import cors from 'cors'
 import { createServer } from 'http'
 import db from './database/database.js'
-import { createGame } from './database/services.js'
+import {
+  createGame,
+  createUser,
+  isEmailTaken,
+  isUserNameTaken,
+} from './database/services.js'
+import { hashPassword } from './auth/auth-service.js'
 // const socketIo = require('socket.io')
 
 const app = express()
@@ -39,11 +45,55 @@ app.get('/games', (req, res) => {
   res.json(games)
 })
 
+app.get('/users', (req, res) => {
+  const users = db.prepare('SELECT * FROM users').all()
+  res.json(users)
+})
+
 app.post('/games', (req, res) => {
   const userId = 1 // Hardcoded for now
   const { title, questions } = req.body
   try {
     createGame(title, userId, questions)
+    res.sendStatus(201)
+  } catch (error) {
+    console.error(error)
+    res.sendStatus(500)
+  }
+})
+
+app.post('/register', async (req, res) => {
+  const { name, email, password } = req.body
+
+  if (name === '' || email === '' || password === '') {
+    return res
+      .status(400)
+      .json({ message: 'Name, email, and password fields cannot be empty' })
+  }
+
+  if (name.length < 3) {
+    return res
+      .status(400)
+      .json({ message: 'Name must be at least 3 characters long' })
+  }
+
+  if (password.length < 8) {
+    return res
+      .status(400)
+      .json({ message: 'Password must be at least 8 characters long' })
+  }
+
+  if (isUserNameTaken(name)) {
+    return res.status(400).json({ message: 'Name is already taken' })
+  }
+
+  if (isEmailTaken(email)) {
+    return res.status(400).json({ message: 'This email is already in use' })
+  }
+
+  try {
+    const hash = await hashPassword(password)
+    createUser(name, email, hash)
     res.sendStatus(201)
   } catch (error) {
     console.error(error)

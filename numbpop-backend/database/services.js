@@ -20,3 +20,23 @@ export const createGame = db.transaction((title, userId, questions) => {
   }
   return gameId
 })
+
+export const createUser = db.transaction((name, email, hash) => {
+  const stmt = db.prepare(
+    'INSERT INTO users (name, email, hash) VALUES (?, ?, ?)'
+  )
+  const { lastInsertRowid: userId } = stmt.run(name, email, hash)
+  return userId
+})
+
+export const isUserNameTaken = (name) => {
+  const stmt = db.prepare('SELECT COUNT(*) as count FROM users WHERE name = ?')
+  const { count } = stmt.get(name)
+  return count > 0
+}
+
+export const isEmailTaken = (email) => {
+  const stmt = db.prepare('SELECT COUNT(*) as count FROM users WHERE email = ?')
+  const { count } = stmt.get(email)
+  return count > 0
+}

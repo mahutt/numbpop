@@ -5,7 +5,9 @@
   text-align: center;
 }
 
-input[type='text'] {
+input[type='text'],
+input[type='password'],
+input[type='email'] {
   padding: 0.5em;
   border-radius: 0.5em;
   border: none;
