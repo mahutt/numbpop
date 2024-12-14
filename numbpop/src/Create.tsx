@@ -1,4 +1,5 @@
 import useLocalStorage from 'use-local-storage'
+import { useAxios } from './context/axios-context'
 
 type Choice = {
   text: string
@@ -16,6 +17,7 @@ type Game = {
 }
 
 export default function Create() {
+  const axios = useAxios()
   const [game, setGame] = useLocalStorage<Game>('game', {
     // key to be made dynamic
     title: '',
@@ -23,13 +25,7 @@ export default function Create() {
   })
 
   const handleSave = async () => {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/games`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(game),
-    })
+    const response = await axios.post('/games', game)
     console.log(response)
   }
 
