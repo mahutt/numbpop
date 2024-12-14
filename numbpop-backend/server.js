@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import { createServer } from 'http'
 import db from './database/database.js'
+import { createGame } from './database/services.js'
 // const socketIo = require('socket.io')
 
 const app = express()
@@ -41,19 +42,13 @@ app.get('/games', (req, res) => {
 app.post('/games', (req, res) => {
   const userId = 1 // Hardcoded for now
   const { title, questions } = req.body
-  let stmt = db.prepare('INSERT INTO games (title, userId) VALUES (?, ?)')
-  const { lastInsertRowid } = stmt.run(title, userId)
-  questions.forEach(({ text, choices }) => {
-    stmt = db.prepare('INSERT INTO questions (text, gameId) VALUES (?, ?)')
-    const { lastInsertRowid: questionId } = stmt.run(text, lastInsertRowid)
-    choices.forEach(({ text, correct }) => {
-      stmt = db.prepare(
-        'INSERT INTO choices (text, correct, questionId) VALUES (?, ?, ?)'
-      )
-      stmt.run(text, correct ? 1 : 0, questionId)
-    })
-  })
-  res.sendStatus(201)
+  try {
+    createGame(title, userId, questions)
+    res.sendStatus(201)
+  } catch (error) {
+    console.error(error)
+    res.sendStatus(500)
+  }
 })
 
 // io.on('connection', (socket) => {
