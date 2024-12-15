@@ -8,7 +8,8 @@ import {
   isEmailTaken,
   isUserNameTaken,
 } from './database/services.js'
-import { hashPassword } from './auth/auth-service.js'
+import { hashPassword, comparePasswords } from './auth/auth-service.js'
+import { generateToken, authenticateToken } from './auth/jwt-config.js'
 // const socketIo = require('socket.io')
 
 const app = express()
@@ -93,8 +94,26 @@ app.post('/register', async (req, res) => {
 
   try {
     const hash = await hashPassword(password)
-    createUser(name, email, hash)
-    res.sendStatus(201)
+    const id = createUser(name, email, hash)
+    res.status(201).json({ token: generateToken({ id, name, email }) })
+  } catch (error) {
+    console.error(error)
+    res.sendStatus(500)
+  }
+})
+
+app.get('/current', authenticateToken, (req, res) => {
+  res.json({ user: req.user })
+})
+
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body
+    const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email)
+    if (!user || !(await comparePasswords(password, user.hash))) {
+      return res.status(401).json({ message: 'Invalid email or password' })
+    }
+    res.json({ token: generateToken(user) })
   } catch (error) {
     console.error(error)
     res.sendStatus(500)

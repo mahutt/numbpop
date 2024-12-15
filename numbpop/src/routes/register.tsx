@@ -1,26 +1,26 @@
-import { useState } from 'react'
-import { useAxios } from '../context/axios-context'
-import { isAxiosError } from 'axios'
+import { useEffect, useState } from 'react'
+import { useAuth } from '../context/auth-context'
+import { useNavigate } from 'react-router-dom'
 
 export default function Register() {
-  const axios = useAxios()
-  const [user, setUser] = useState({
+  const { user, isLoading, register, error } = useAuth()
+  const navigate = useNavigate()
+  const [userInfo, setUserInfo] = useState({
     name: '',
     email: '',
     password: '',
   })
-  const [error, setError] = useState('')
+
   const handleRegister = async () => {
-    try {
-      const response = await axios.post('/register', user)
-      console.log(response.data)
-      setError('')
-    } catch (error) {
-      if (isAxiosError(error)) {
-        setError(error.response?.data.message)
-      }
-    }
+    register(userInfo)
   }
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      navigate('/profile')
+    }
+  }, [isLoading, user, navigate])
+
   return (
     <div>
       <h2>Sign up</h2>
@@ -38,10 +38,10 @@ export default function Register() {
           type="text"
           id="username"
           name="username"
-          value={user.name}
+          value={userInfo.name}
           onChange={(event) =>
-            setUser({
-              ...user,
+            setUserInfo({
+              ...userInfo,
               name: event.target.value,
             })
           }
@@ -51,10 +51,10 @@ export default function Register() {
           type="email"
           id="email"
           name="email"
-          value={user.email}
+          value={userInfo.email}
           onChange={(event) =>
-            setUser({
-              ...user,
+            setUserInfo({
+              ...userInfo,
               email: event.target.value,
             })
           }
@@ -64,10 +64,10 @@ export default function Register() {
           type="password"
           id="password"
           name="password"
-          value={user.password}
+          value={userInfo.password}
           onChange={(event) =>
-            setUser({
-              ...user,
+            setUserInfo({
+              ...userInfo,
               password: event.target.value,
             })
           }
